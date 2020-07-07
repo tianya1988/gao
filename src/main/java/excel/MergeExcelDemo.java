@@ -16,7 +16,6 @@ public class MergeExcelDemo {
 
     public static void main(String[] args) {
 
-
         if (args.length != 3) {
             System.out.println("参数个数错误");
             System.out.println("参数格式 : 目录 开始时间  结束时间");
@@ -39,11 +38,9 @@ public class MergeExcelDemo {
         String startTimeStr = args[1];
         String endTimeStr = args[2];
 
-        /*
-        String dir = "/home/jason/Desktop/car2";
-        String startTimeStr = "2020-05-06_09:15:04";
-        String endTimeStr = "2020-05-07_02:28:04";
-        */
+/*        String dir = "/home/jason/Desktop/shuju2";
+        String startTimeStr = "2020-06-11_11:50:04";
+        String endTimeStr = "2020-06-12_11:50:04";*/
 
         HashMap<String, HashMap<Long, Float>> statisticMap = new HashMap<String, HashMap<Long, Float>>();
         File fileDir = new File(dir);
@@ -62,7 +59,9 @@ public class MergeExcelDemo {
                     // 多次运行的时候,会有data.xls,处理此文件时报错,数组对应位置出错时,初始化为0
                     fileListOrder[i] = (Integer.parseInt(filePartArray[0]));
                 } catch (NumberFormatException e) {
+                    System.out.println("********");
                     System.out.println(e.getMessage());
+                    System.out.println("********");
                 }
 
             }
@@ -112,7 +111,11 @@ public class MergeExcelDemo {
             cellList.add(sdf2.format(start));
 
             for (int i : fileListOrder) {
+                // win系统和linux系统 map中国的key对目录分隔符"/" "\"是严格区分的
                 String filePath = dir + "/" + i + ".xls";
+
+                //win系统目录分隔符"\"
+//                String filePath = dir + "\\" + i + ".xls";
                 HashMap<Long, Float> fileHashMap = statisticMap.get(filePath);
 
                 if (fileHashMap.containsKey(start)) {
@@ -225,8 +228,10 @@ public class MergeExcelDemo {
                             Cell cell2 = row.getCell(2);
                             if ((cell2.getCellTypeEnum() == CellType.STRING)) {
                                 temperatureValue = cell2.getStringCellValue();
+                            } else if (cell2.getCellTypeEnum() == CellType.NUMERIC) {
+                                temperatureValue = cell2.getNumericCellValue() + "";
                             } else {
-                                System.out.println("第" + rowNum + "行，第" + (2) + "列[" + title[1] + "]数据错误！");
+                                System.out.println("第" + rowNum + "行，第" + (3) + "列[" + title[2] + "]数据错误！");
                             }
 
                             Date timeValueDate = sdf.parse(timeValue);
