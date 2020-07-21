@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -13,6 +14,7 @@ import java.util.*;
  */
 public class MergeExcelDemo {
 
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) {
 
@@ -103,19 +105,19 @@ public class MergeExcelDemo {
         long endTimeLong = endTime.getTime();
 
 
-        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         List<Object> rowList = new ArrayList<Object>();
         for (long start = startTimeLong; start <= endTimeLong; ) {
 
             List<String> cellList = new ArrayList<String>();
-            cellList.add(sdf2.format(start));
+            cellList.add(simpleDateFormat.format(start));
 
             for (int i : fileListOrder) {
                 // win系统和linux系统 map中国的key对目录分隔符"/" "\"是严格区分的
-                String filePath = dir + "/" + i + ".xls";
+//                String filePath = dir + "/" + i + ".xls";
 
                 //win系统目录分隔符"\"
-//                String filePath = dir + "\\" + i + ".xls";
+                String filePath = dir + "\\" + i + ".xls";
                 HashMap<Long, Float> fileHashMap = statisticMap.get(filePath);
 
                 if (fileHashMap.containsKey(start)) {
@@ -148,7 +150,6 @@ public class MergeExcelDemo {
     private static void readExcel(String path, HashMap<String, HashMap<Long, Float>> statisticMap) {
 
         HashMap<Long, Float> fileMap = new HashMap<Long, Float>(1000);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         File file = new File(path);
         FileInputStream fileInputStream = null;
@@ -177,7 +178,7 @@ public class MergeExcelDemo {
                     //跳过第一行(此为合并行);
                     for (int i = 1; i < rowsOfSheet; i++) {
                         Row row = sheetAt.getRow(i);
-                        if ("编号".equals(row.getCell(0).getStringCellValue()) && "时间".equals(row.getCell(1).getStringCellValue())) {
+                        if ((row.getCell(0).getCellType() == CellType.STRING) && (row.getCell(1).getCellType() == CellType.STRING) && "编号".equals(row.getCell(0).getStringCellValue()) && "时间".equals(row.getCell(1).getStringCellValue())) {
                             beginRowNum = i;
                         }
                     }
@@ -217,13 +218,27 @@ public class MergeExcelDemo {
                             String timeValue = "";
                             String temperatureValue = "";
                             Cell cell1 = row.getCell(1);
-                            if ((cell1.getCellTypeEnum() == CellType.STRING)) {
+                            if ((cell1.getCellType() == CellType.STRING)) {
                                 timeValue = cell1.getStringCellValue();
                                 timeValue = timeValue.substring(0, timeValue.length() - 2);
                                 timeValue = timeValue + "00";
+                            } else if (cell1.getCellType() == CellType.NUMERIC) {
+                                // 表格中时间字段格式有时候是数字类型的,需要转化一次
+//                                System.out.println("cell type is " + cell1.getCellType());
+
+//                                System.out.println(numericCellValue);
+
+                                Date date = simpleDateFormat.parse(excelTime(cell1));
+//                                System.out.println(sdf.format(date));
+                                timeValue= simpleDateFormat.format(date);
+                                timeValue = timeValue.substring(0, timeValue.length() - 2);
+                                timeValue = timeValue + "00";
+
                             } else {
+                                System.out.println(cell1.getCellType());
                                 System.out.println("第" + rowNum + "行，第" + (2) + "列[" + title[1] + "]数据错误！");
                             }
+
 
                             Cell cell2 = row.getCell(2);
                             if ((cell2.getCellTypeEnum() == CellType.STRING)) {
@@ -234,7 +249,7 @@ public class MergeExcelDemo {
                                 System.out.println("第" + rowNum + "行，第" + (3) + "列[" + title[2] + "]数据错误！");
                             }
 
-                            Date timeValueDate = sdf.parse(timeValue);
+                            Date timeValueDate = simpleDateFormat.parse(timeValue);
                             long timeValueLong = timeValueDate.getTime();
 
                             fileMap.put(timeValueLong, Float.parseFloat(temperatureValue));
@@ -247,10 +262,26 @@ public class MergeExcelDemo {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
+        } else
+
+        {
             System.out.println("文件不存在!");
         }
 
         statisticMap.put(path, fileMap);
+    }
+
+
+    public static String excelTime(Cell cell) {
+        String guarantee_time = null;
+        if (DateUtil.isCellDateFormatted(cell)) {
+            //用于转化为日期格式
+            Date d = cell.getDateCellValue();
+//	             System.err.println(d.toString());
+//	             DateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            guarantee_time = simpleDateFormat.format(d);
+        }
+        return guarantee_time;
+
     }
 }
