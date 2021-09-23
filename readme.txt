@@ -8,3 +8,4 @@ java -jar /home/jason/project/gao/target/gao-1.0.jar /home/jason/Desktop/car2 20
 
 #pom文件中虽然assembly为红色,但是依然能打包成功
 
+zhangxuelong
