@@ -18,6 +18,9 @@ public class MergeExcelDemo {
 
     public static void main(String[] args) {
 
+//        args[0] = "C:\\Users\\zhang\\Desktop\\temp";
+//        args[1] = "2021-11-29_11:41:29";
+//        args[2] = "2021-11-29_16:10:29";
         if (args.length != 3) {
             System.out.println("参数个数错误");
             System.out.println("参数格式 : 目录 开始时间  结束时间");
@@ -168,7 +171,7 @@ public class MergeExcelDemo {
                     Sheet sheetAt = workBook.getSheetAt(s);
                     //获取工作表名称
                     String sheetName = sheetAt.getSheetName();
-//                    System.out.println("工作表名称：" + sheetName);
+                    System.out.println("工作表名称：" + sheetName);
                     // 获取当前Sheet的总行数
                     int rowsOfSheet = sheetAt.getPhysicalNumberOfRows();
                     System.out.println("当前表格的总行数:" + rowsOfSheet);
@@ -178,7 +181,14 @@ public class MergeExcelDemo {
                     //跳过第一行(此为合并行);
                     for (int i = 1; i < rowsOfSheet; i++) {
                         Row row = sheetAt.getRow(i);
-                        if ((row.getCell(0).getCellType() == CellType.STRING) && (row.getCell(1).getCellType() == CellType.STRING) && "编号".equals(row.getCell(0).getStringCellValue()) && "时间".equals(row.getCell(1).getStringCellValue())) {
+                        if (row == null) {
+                            continue;
+                        }
+                        // 有效行（有温度数字的行） 列数=3
+                        if (row.getPhysicalNumberOfCells() <= 2) {
+                            continue;
+                        }
+                        if ((row.getCell(0).getCellType() == CellType.STRING) && (row.getCell(1).getCellType() == CellType.STRING) && "序号".equals(row.getCell(0).getStringCellValue()) && "时间".equals(row.getCell(1).getStringCellValue())) {
                             beginRowNum = i;
                         }
                     }
@@ -189,7 +199,7 @@ public class MergeExcelDemo {
                     int physicalNumberOfCells = sheetAt.getRow(beginRowNum).getPhysicalNumberOfCells();
 //                    System.out.println("physicalNumberOfCells is : " + physicalNumberOfCells);
 
-                    // 统计列名  :  编号  时间  温度°C
+                    // 统计列名  :  序号  时间  温度°C
                     String[] title = new String[physicalNumberOfCells];
                     for (int i = 0; i < physicalNumberOfCells; i++) {
                         title[i] = beginRow.getCell(i).getStringCellValue();
@@ -203,7 +213,7 @@ public class MergeExcelDemo {
                             int rowNum = row.getRowNum() + 1;
 //                            System.out.println("当前行:" + rowNum);
 
-                            // 第一列是编号,跳过
+                            // 第一列是序号,跳过
                             /*
                             for (int columnNum = 1; columnNum < physicalNumberOfCells; columnNum++) {
                                 Cell cell = row.getCell(columnNum);

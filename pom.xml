@@ -19,15 +19,15 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.12</version>
-            <scope>system</scope>
-            <systemPath>/home/jason/.m2/repository/local/commons-codec-1.12.jar</systemPath>
+           <!-- <scope>system</scope>
+            <systemPath>/home/jason/.m2/repository/local/commons-codec-1.12.jar</systemPath>-->
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.55</version>
-            <scope>system</scope>
-            <systemPath>/home/jason/.m2/repository/local/jsch-0.1.55.jar</systemPath>
+           <!-- <scope>system</scope>
+            <systemPath>/home/jason/.m2/repository/local/jsch-0.1.55.jar</systemPath>-->
         </dependency>
 
         <dependency>
